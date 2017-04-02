@@ -1,9 +1,12 @@
 #pragma once
 #include "fixed_tables.h"
+#include <algorithm>
 
-namespace unfixed_tables {
+namespace unfixed_tables 
+{
 	
-		class Consts {
+		class Consts 
+		{
 			array<vector <string>, 20> const_;
 			int Hash(int c);
 		public:
@@ -11,25 +14,31 @@ namespace unfixed_tables {
 			string GetConst(int i, int j);
 			bool FindConst(string c, int &i, int &j);
 			void GetElements(array<vector<string>,20> &c);
+			void PrintElements(ofstream &fo);
 		};
 
-		//Структура индентификатора (переменной) включает в себя
-		//наименование переменной и позицию её значения в списке 
-		//константных значений
-		struct Identificator {
+		//РЎС‚СЂСѓРєС‚СѓСЂР° РёРЅРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° (РїРµСЂРµРјРµРЅРЅРѕР№) РІРєР»СЋС‡Р°РµС‚ РІ СЃРµР±СЏ
+		//РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РїРµСЂРµРјРµРЅРЅРѕР№ Рё РїРѕР·РёС†РёСЋ РµС‘ Р·РЅР°С‡РµРЅРёСЏ РІ СЃРїРёСЃРєРµ 
+		//РєРѕРЅСЃС‚Р°РЅС‚РЅС‹С… Р·РЅР°С‡РµРЅРёР№
+		struct Identificator 
+		{
 			string name;
+			bool type;
 			int i;
 			int j;
 		};
 
-		class Identificators {
+		class Identificators 
+		{
 			array<vector <Identificator>, 20> identificator;
 			int Hash(int id);
 		public:
 			bool AddParameter(string id);
-			void ChangeParameter(string id, int i, int j);
+			void ChangeType(string id, bool type);
+			void ChangePosition(string id, int i, int j);
 			bool FindParameter(string id, int &i, int &j);
 			Identificator GetParameter(int i, int j);
 			void GetElements(array<vector <Identificator>,20> &id);
+			void PrintElements(ofstream &fo);
 		};
 }
