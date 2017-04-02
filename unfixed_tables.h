@@ -4,7 +4,6 @@
 
 namespace unfixed_tables 
 {
-	
 		class Consts 
 		{
 			array<vector <string>, 20> const_;
