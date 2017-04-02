@@ -2,14 +2,22 @@
 #include "unfixed_tables.h" 
 using namespace fixed_tables;
 using namespace unfixed_tables;
-namespace l_analyzer{
-	struct Token{
+namespace l_analyzer
+{
+	struct Token
+	{
 		int table;
 		pair <int, int> place;
 		int type;
 	};
 
-	class LexicalAnalyzer {
+	class LexicalAnalyzer  
+	{
+		KeyWords keys;
+		Separators separators;
+		SignOp operations;
+		Consts consts;
+		Identificators identificators;
 		//вектор токенов
 		vector <Token> tokens;
 		//файл, содержащий текст программы 
@@ -37,7 +45,7 @@ namespace l_analyzer{
 		
 		//анализ 1 символа (определение состояния)
 		void AnalyzeSymbol();
-		void AnalyzeError(FILE *fo);
+		void AnalyzeError(ofstream &fo);
 		//обработка комментария
 		void Comment();
 		//обработка операции
