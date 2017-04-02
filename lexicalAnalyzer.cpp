@@ -2,10 +2,10 @@
 namespace l_analyzer{
 	LexicalAnalyzer::LexicalAnalyzer()
 	{
-		fopen_s(&prog, "Program.cpp", "r");
+		fopen_s(&prog, "Program.txt", "r");
 		eof = false;
 		error = 0;
-		line = 1;
+		line = 0;
 		while (!eof && separators.FindElement(symbol) != -1)
 			AnalyzeSymbol();
 	}
@@ -74,7 +74,7 @@ namespace l_analyzer{
 	void LexicalAnalyzer::Operation()
 	{
 		int position = ftell(prog);
-		str = "" + symbol;
+		str = symbol;
 		char prev_symbol = symbol;
 		int prev_condition = condition;
 
@@ -112,7 +112,7 @@ namespace l_analyzer{
 
 	void LexicalAnalyzer::Constanta()
 	{
-		str = "" + symbol;
+		str = symbol;
 		int position = ftell(prog);
 		char prev_symbol = symbol;
 		int prev_condition = condition;
@@ -150,7 +150,7 @@ namespace l_analyzer{
 
 	void LexicalAnalyzer::Identificator()
 	{
-		str = "" + symbol;
+		str = symbol;
 		int position = ftell(prog);
 		char prev_symbol = symbol;
 		int prev_condition = condition;
@@ -184,16 +184,18 @@ namespace l_analyzer{
 				Token ident{ 5, { i, j }, -1 };
 				tokens.push_back(ident);
 			}
+
 			//переход к предыдущему символу
 			fseek(prog, position, SEEK_SET(0));
 			symbol = prev_symbol;
 			condition = prev_condition;
 		}
+
 	}
 
 	void LexicalAnalyzer::Separator()
 	{
-		str = "" + symbol;
+		str = symbol;
 		int position = ftell(prog);
 		char prev_symbol = symbol;
 		int prev_condition = condition;
@@ -240,24 +242,23 @@ namespace l_analyzer{
 		}
 	}
 
-	void LexicalAnalyzer::AnalyzeError(FILE *fo)
+	void LexicalAnalyzer::AnalyzeError(ofstream &fo)
 	{
 		switch (error)
 		{
-		case 1: fprintf_s(fo, "\nLA:: ERROR(line %d):: Invalid character %c.", line, symbol);
+		case 1: fo << "\nLA:: ERROR(line "<< line <<"):: Invalid character << " << symbol << " >>.";
 			break;
-		case 2: fprintf_s(fo, "\nLA:: ERROR:: Comment not closed.");
+		case 2: fo << "\nLA:: ERROR:: Comment not closed.";
 			break;
-		case 3: fprintf_s(fo, "\nLA:: ERROR(line %d):: Incorrect sequence of characters %s.",line, str);
+		case 3: fo << "\nLA:: ERROR(line "<< line <<"):: Incorrect sequence of characters << "<< str + symbol<< " >>.";
 		}
 	}
 	void LexicalAnalyzer::Analize()
 	{
-		FILE *t;
-		fopen_s(&t, "tokens.txt", "w");
-		AnalyzeSymbol();
-		while (!eof && !error)
+		ofstream t("tokens.txt");
+		do 
 		{
+			AnalyzeSymbol();
 			switch (condition)
 			{	//состояние константа
 			case 1: Constanta();
@@ -277,8 +278,11 @@ namespace l_analyzer{
 				//ошибка недопустимый символ
 			case 0: error = 1;
 			}
-			AnalyzeSymbol();
-		}
+		} while (!eof && !error);
+		identificators.PrintElements(t);
+		consts.PrintElements(t);
+		for (auto i:tokens)
+			t << "\n(" << i.table << ", (" << i.place.first <<", "<< i.place.second << "), " << i.type<< ")";
 		if (error) AnalyzeError(t);
 	}
 }
