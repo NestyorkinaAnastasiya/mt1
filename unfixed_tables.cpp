@@ -83,7 +83,7 @@ namespace unfixed_tables
 	{
 		int i, j;
 		if (FindParameter(id, i, j)) return false;
-		identificator[Hash(int(id[0]))].push_back({ id, false, -1, -1});
+		identificator[Hash(int(id[0]))].push_back({ id, false, false});
 		return true;
 	}
 
@@ -95,14 +95,11 @@ namespace unfixed_tables
 	}
 
 	//изменение значение параметра id
-	void Identificators::ChangePosition(string id, int str , int stolb) 
+	void Identificators::ChangeInit(string id, bool init) 
 	{
 		int i, j;
 		if (FindParameter(id, i, j)) 
-		{
-			identificator[i][j].i = str;
-			identificator[i][j].j = stolb;
-		}
+			identificator[i][j].init = init;
 	}
 
 	//получение переменной из позиции i, j
@@ -128,7 +125,7 @@ namespace unfixed_tables
 		{
 			fo << "\n["<< i << "] ";
 			for (int j = 0; j < identificator[i].size(); j++)
-				fo << "{"<< identificator[i][j].name << ", " << identificator[i][j].type <<", ("<< identificator[i][j].i <<", "<< identificator[i][j].j <<")} ";
+				fo << "{"<< identificator[i][j].name << ", " << identificator[i][j].type <<", "<< identificator[i][j].init << "} ";
 		}
 	}
 }
