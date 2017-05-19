@@ -1,9 +1,9 @@
-#include "lexicalAnalyzer.h"
-#include <iostream>
-using namespace l_analyzer;
+#include "SyntaxAnalyzer.h"
+
+using namespace s_analyzer;
 
 void main() 
 {
-	LexicalAnalyzer LA;
-	LA.Analize();
+	SyntaxAnalyzer LA;
+	LA.Analyze();
 }
