@@ -1,25 +1,32 @@
 #include "fixed_tables.h" 
 #include "unfixed_tables.h" 
+#include <iostream>
+#include <sstream>
 using namespace fixed_tables;
 using namespace unfixed_tables;
 namespace l_analyzer
 {
 	struct Token
 	{
+		// 1 - таблица ключевых слов
+		// 2 - таблица разделителей
+		// 3 - таблица знаков операции
+		// 4 - таблица постоянных значений
+		// 5 - таблица идентификаторов
 		int table;
 		pair <int, int> place;
-		int type;
+		bool type;
+		int line;
+		bool Equal(Token tk){
+			if (table == tk.table && type == tk.type && place == tk.place)
+				return true;
+			else return false;
+		};
 	};
+
 
 	class LexicalAnalyzer  
 	{
-		KeyWords keys;
-		Separators separators;
-		SignOp operations;
-		Consts consts;
-		Identificators identificators;
-		//вектор токенов
-		vector <Token> tokens;
 		//файл, содержащий текст программы 
 		FILE *prog;
 		//текущий символ файла
@@ -57,6 +64,13 @@ namespace l_analyzer
 		//обработка разделителя
 		void Separator();
 	public:
+		KeyWords keys;
+		Separators separators;
+		SignOp operations;
+		Consts consts;
+		Identificators identificators;
+		//вектор токенов
+		vector <Token> tokens;
 		LexicalAnalyzer();
 		void Analize();				
 	};
