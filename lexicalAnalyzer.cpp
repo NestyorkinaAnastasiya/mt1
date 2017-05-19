@@ -5,16 +5,14 @@ namespace l_analyzer{
 		fopen_s(&prog, "Program.txt", "r");
 		eof = false;
 		error = 0;
-		line = 0;
-		while (!eof && separators.FindElement(symbol) != -1)
-			AnalyzeSymbol();
+		line = 1;
 	}
 	void LexicalAnalyzer::AnalyzeSymbol()
 	{
 		symbol = fgetc(prog);
 		if (symbol == EOF) eof = true;
 		//константа
-		if ('0' <= symbol && symbol <= '9')
+		else if ('0' <= symbol && symbol <= '9')
 			condition = 1;
 		//идентификатор
 		else if ('a' <= symbol && symbol <= 'z' || 'A' <= symbol && symbol <= 'Z' || symbol == '_')
@@ -23,14 +21,11 @@ namespace l_analyzer{
 		else if (symbol == '/')
 			condition = 3;
 		//знаки операций
-		else if (symbol == '*', symbol == '+' || symbol == '-' || symbol == '=' || symbol == '!' || symbol == '>' || symbol == '<')
+		else if (symbol == '*'|| symbol == '+' || symbol == '-' || symbol == '=' || symbol == '!' || symbol == '>' || symbol == '<')
 			condition = 4;
 		//разделитель
-		else if (separators.FindElement(symbol) != -1)
-		{
-			if (symbol == '\n') line++;
+		else if (symbol == ' ' || symbol == '(' || symbol == ')' || symbol == '}' || symbol == '{' || symbol == '\t' || symbol == '\n' || symbol == ';' || symbol == ',')
 			condition = 5;
-		}
 		//недопустимый символ
 		else condition = 0;
 	}
@@ -46,7 +41,11 @@ namespace l_analyzer{
 		if (symbol == '/')
 		{
 			while (!eof && symbol != '\n')
+			{ 
+				prev_symbol = symbol;
 				AnalyzeSymbol();
+			}
+			fseek(prog, ftell(prog) - 1, SEEK_SET(0));
 		}
 		else if (symbol == '*')
 		{	//пока не закончен комментарий и не конец файла
@@ -56,7 +55,7 @@ namespace l_analyzer{
 				AnalyzeSymbol();
 
 				//если комментарий закончен
-				if (prev_symbol == '*' && condition == 3)
+				if (prev_symbol == '*' && symbol == '/')
 					endComment = true;
 				//если комментарий не закрыт, то ошибка "незакрытый комментарий"
 				if (eof && !endComment) error = 2;
@@ -87,25 +86,18 @@ namespace l_analyzer{
 			{
 				//добавление токена (3, i, -1) 
 				//второго измерения и типа нет в таблице
-				Token op{ 3, { i, -1 }, -1};
+				Token op{ 3, { i, -1 }, false, line };
 				tokens.push_back(op);
 			}
 			else
 			{
-				str[2] = '\0';
 				//восстановление позиции чтения в файле:
 				fseek(prog, position, SEEK_SET(0));
-				symbol = prev_symbol;
+				str = symbol = prev_symbol;
 				condition = prev_condition;
-				if (symbol != '!')
-				{
-					i = operations.FindElement(str);
-					Token op{ 3, { i, -1 }, -1 };
-					tokens.push_back(op);
-				}
-				//ошибка "неправильная последовательность символов"
-				//нет отдельной операции '!'
-				else error = 3;
+				i = operations.FindElement(str);
+				Token op{ 3, { i, -1 }, false, line};
+				tokens.push_back(op);
 			}
 		}
 	}
@@ -113,36 +105,31 @@ namespace l_analyzer{
 	void LexicalAnalyzer::Constanta()
 	{
 		str = symbol;
-		int position = ftell(prog);
 		char prev_symbol = symbol;
 		int prev_condition = condition;
 
 		AnalyzeSymbol();
-		if (condition != 1) error = true;
 		//пока символ не конец файла, не произошла ошибка и
-		//не перешли в состояние разделителя
-		while (!eof && !error && condition != 5)
-		{	//если не цифра - ошибка
-			if (condition != 1) error = 3;
-			else
-			{	
+		//не перешли в другое состояние
+		while (!eof && !error && condition == 1)
+		{	
 				prev_symbol = symbol;
 				prev_condition = condition;
 				str += symbol;
-				position++;
 				AnalyzeSymbol();
-			}
 		}
+
+		if (condition == 2) error = 3;
 		//если не было ошибок формируем токен
 		if (!error)
 		{
 			consts.AddConst(str);
 			int i, j;
 			consts.FindConst(str, i, j);
-			Token c{ 4, { i, j }, -1 };
+			Token c{ 4, { i, j }, false, line};
 			tokens.push_back(c);
 			//переход к последнему символу константы
-			fseek(prog, position, SEEK_SET(0));
+			fseek(prog, ftell(prog)-1, SEEK_SET(0));
 			symbol = prev_symbol;
 			condition = prev_condition;
 		}
@@ -173,7 +160,7 @@ namespace l_analyzer{
 			//обработка ключевого слова
 			if (k != -1)
 			{
-				Token key{ 1, { k, -1 }, -1 };
+				Token key{ 1, { k, -1 }, false, line };
 				tokens.push_back(key);
 			}
 			else //обработка идентификатора
@@ -181,7 +168,7 @@ namespace l_analyzer{
 				identificators.AddParameter(str);
 				int i, j;
 				identificators.FindParameter(str, i, j);
-				Token ident{ 5, { i, j }, -1 };
+				Token ident{ 5, { i, j }, false, line };
 				tokens.push_back(ident);
 			}
 
@@ -195,8 +182,6 @@ namespace l_analyzer{
 
 	void LexicalAnalyzer::Separator()
 	{
-		str = symbol;
-		int position = ftell(prog);
 		char prev_symbol = symbol;
 		int prev_condition = condition;
 		if (symbol == ' ')
@@ -205,39 +190,54 @@ namespace l_analyzer{
 			//обработка множества пробеллов(их удаления)
 			while (!eof && symbol == ' ')
 			{
-				position++;
 				prev_symbol = symbol;
 				prev_condition = condition;
 				AnalyzeSymbol();
 			}
 			//переход к предыдущему символу
-			fseek(prog, position, SEEK_SET(0));
+			fseek(prog, ftell(prog)-1, SEEK_SET(0));
 			symbol = prev_symbol;
 			condition = prev_condition;
-			Token sep{ 2, { separators.FindElement(' '), -1 }, -1 };
-			tokens.push_back(sep);
 		}
 		else if (symbol == '\n')
 		{
+			line++;
 			AnalyzeSymbol();
 			//обработка множества пустых строк(их удаления)
 			while (!eof && symbol == '\n')
 			{
-				position++;
+				line++;
 				prev_symbol = symbol;
 				prev_condition = condition;
 				AnalyzeSymbol();
 			}
 			//переход к предыдущему символу
-			fseek(prog, position, SEEK_SET(0));
+			fseek(prog, ftell(prog)-1, SEEK_SET(0));
 			symbol = prev_symbol;
 			condition = prev_condition;
-			Token sep{ 2, { separators.FindElement('\n'), -1 }, -1 };
-			tokens.push_back(sep);
+		}
+		else if (symbol == '\t')
+		{
+			line++;
+			AnalyzeSymbol();
+			//обработка множества табуляций
+			while (!eof && symbol == '\t')
+			{
+				line++;
+				prev_symbol = symbol;
+				prev_condition = condition;
+				AnalyzeSymbol();
+			}
+			//переход к предыдущему символу
+			fseek(prog, ftell(prog) - 1, SEEK_SET(0));
+			symbol = prev_symbol;
+			condition = prev_condition;
 		}
 		else
 		{
-			Token sep{ 2, { separators.FindElement(symbol), -1 }, -1 };
+			str = "";
+			str += symbol;
+			Token sep{ 2, { separators.FindElement(str), -1 }, false, line};
 			tokens.push_back(sep);
 		}
 	}
@@ -246,11 +246,11 @@ namespace l_analyzer{
 	{
 		switch (error)
 		{
-		case 1: fo << "\nLA:: ERROR(line "<< line <<"):: Invalid character << " << symbol << " >>.";
+		case 1: fo << "\nLA:: ERROR(line " << line << "):: Invalid character << " << symbol << " >>.";
 			break;
-		case 2: fo << "\nLA:: ERROR:: Comment not closed.";
+		case 2: fo << "\nLA:: ERROR(line " << line << "):: Comment not closed.";
 			break;
-		case 3: fo << "\nLA:: ERROR(line "<< line <<"):: Incorrect sequence of characters << "<< str + symbol<< " >>.";
+		case 3: fo << "\nLA:: ERROR(line " << line << "):: Incorrect sequence of characters << " << str + symbol << " >>.";
 		}
 	}
 	void LexicalAnalyzer::Analize()
@@ -259,6 +259,7 @@ namespace l_analyzer{
 		do 
 		{
 			AnalyzeSymbol();
+			if (!eof)
 			switch (condition)
 			{	//состояние константа
 			case 1: Constanta();
