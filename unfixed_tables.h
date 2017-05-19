@@ -24,8 +24,7 @@ namespace unfixed_tables
 	{
 		string name;
 		bool type;
-		int i;
-		int j;
+		bool init;
 	};
 
 	class Identificators 
@@ -35,7 +34,7 @@ namespace unfixed_tables
 	public:
 		bool AddParameter(string id);
 		void ChangeType(string id, bool type);
-		void ChangePosition(string id, int i, int j);
+		void ChangeInit(string id, bool init);
 		bool FindParameter(string id, int &i, int &j);
 		Identificator GetParameter(int i, int j);
 		void GetElements(array<vector <Identificator>,20> &id);
