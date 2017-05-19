@@ -2,12 +2,15 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <fstream>
 using namespace std;
 
-namespace fixed_tables {
+namespace fixed_tables 
+{
 
-	class KeyWords {
-		array <string, 5> words;
+	class KeyWords 
+	{
+		array <string, 3> words;
 	public:
 		KeyWords();
 		int FindElement(string el);
@@ -15,17 +18,19 @@ namespace fixed_tables {
 		~KeyWords();
 	};
 
-	class Separators {
-		array<char, 8> separator;
+	class Separators 
+	{
+		array<string, 9> separator;
 	public:
 		Separators();
-		int FindElement(char symbol);
-		char GetElement(int number);
+		int FindElement(string symbol);
+		string GetElement(int number);
 		~Separators();
 	};
 
-	class SignOp {
-		array <string, 20> signs;
+	class SignOp 
+	{
+		array <string, 18> signs;
 	public:
 		SignOp();
 		int FindElement(string el);
