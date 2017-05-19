@@ -1,28 +1,31 @@
 #include  "fixed_tables.h"
 
-namespace fixed_tables {
+namespace fixed_tables 
+{
 	
-		KeyWords::KeyWords() {
+		KeyWords::KeyWords() 
+		{
 			words[0] = "void";
 			words[1] = "main";
 			words[2] = "int";
-			words[3] = "if";
-			words[4] = "else";
 		}
 
-		int KeyWords::FindElement(string el) {
+		int KeyWords::FindElement(string el) 
+		{
 			for (int i = 0; i < words.size(); i++)
 				if (words[i] == el) return i;
 			return -1;
 		}
 
-		string KeyWords::GetElement(int number){
+		string KeyWords::GetElement(int number)
+		{
 			return words[number];
 		}
 
 		KeyWords::~KeyWords() {}
 
-		Separators::Separators() {
+		Separators::Separators() 
+		{
 			separator[0] = ' ';
 			separator[1] = '(';
 			separator[2] = ')';
@@ -31,25 +34,29 @@ namespace fixed_tables {
 			separator[5] = '\t';
 			separator[6] = '\n';
 			separator[7] = ';';
+			separator[8] = ',';
 		}
-		int Separators::FindElement(char symbol) {
+		int Separators::FindElement(string symbol)
+		{
 			for (int i = 0; i < separator.size(); i++)
 				if (separator[i] == symbol) return i;
 			return -1;
 		}
-		char Separators::GetElement(int number){
+		string Separators::GetElement(int number)
+		{
 			return separator[number];
 		}
 
 		Separators::~Separators() {}
 	
-		SignOp::SignOp() {
-			//ëîãè÷åñêèå îïåðàöèè
+		SignOp::SignOp() 
+		{
+			//Ð»Ð¾Ð³Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸
 			signs[0] = "&&";
 			signs[1] = "||";
 			signs[2] = "!";
 
-			//îïåðàöèè ñðàâíåíèÿ
+			//Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ ÑÑ€Ð°Ð²Ð½ÐµÐ½Ð¸Ñ
 			signs[3] = "==";
 			signs[4] = "!=";
 			signs[5] = ">";
@@ -57,23 +64,22 @@ namespace fixed_tables {
 			signs[7] = ">=";
 			signs[8] = "<=";
 			
-			//àðèôìåòè÷åñêèå îïåðàöèè
+			//Ð°Ñ€Ð¸Ñ„Ð¼ÐµÑ‚Ð¸Ñ‡ÐµÑÐºÐ¸Ðµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸
 			signs[9] = "-";
 			signs[10] = "+";
 			signs[11] = "*";
 			signs[12] = "/";
 
-			//îïåðàöèè ïðèñâàèâàíèÿ
+			//Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð¿Ñ€Ð¸ÑÐ²Ð°Ð¸Ð²Ð°Ð½Ð¸Ñ
 			signs[13] = "=";
 			signs[14] = "+=";
 			signs[15] = "-=";
-			signs[16] = "++";
-			signs[17] = "--";
-			signs[18] = "*=";
-			signs[19] = "/=";
+			signs[16] = "*=";
+			signs[17] = "/=";
 		}
 
-		int SignOp::FindElement(string el){
+		int SignOp::FindElement(string el)
+		{
 			for (int i = 0; i < signs.size(); i++)
 				if (signs[i] == el) return i;
 			return -1;
@@ -81,7 +87,8 @@ namespace fixed_tables {
 
 		SignOp::~SignOp() {}
 
-		string SignOp::GetElement(int number){
+		string SignOp::GetElement(int number)
+		{
 			return signs[number];
 		}
 }
